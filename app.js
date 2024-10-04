@@ -22,7 +22,7 @@ next()
 })
 
 //routes
-app.use('/user',UserRoute)
+app.use('/auth',UserRoute)
 
 app.listen(PORT , ()=>{
     Logger.info("Connected via Port " + PORT)

@@ -39,14 +39,23 @@ const signupUser = async (req, res) => {
 };
 
 // Sign out a user
+
 const logoutUser = (req, res) => {
-  try {
-    // Invalidate the JWT token (by clearing the cookie or simply responding with success)
-    res.status(200).json({ message: "Logged out successfully" });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
+  // Check if the token is present (assuming it is sent in headers or cookies)
+  const token = req.headers['authorization']?.split(' ')[1]; // Example: "Bearer token"
+
+  if (token) {
+    // Optionally, you can also add logic to invalidate the token server-side, 
+    // like storing it in a blacklist if you're managing sessions.
+    
+    // Here we just respond with a success message
+    return res.status(200).json({ message: "Logged out successfully" });
+  } else {
+    // If no token is present, respond with a message indicating no user was logged in
+    return res.status(200).json({ message: "No user logged in" });
   }
 };
+
 
 // Exporting all functions as default
 export default {loginUser,signupUser,logoutUser};
