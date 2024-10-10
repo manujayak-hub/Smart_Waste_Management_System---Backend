@@ -56,6 +56,21 @@ const logoutUser = (req, res) => {
   }
 };
 
+const getUserDetails = async (req, res) => {
+  try {
+    // Since `requireAuth` middleware attaches `req.user`, we can directly use it
+    const user = req.user;
+
+    res.status(200).json({
+      _id: user._id,
+      email: user.email,
+      admintype: user.admintype
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch user details' });
+  }
+};
+
 
 // Exporting all functions as default
-export default {loginUser,signupUser,logoutUser};
+export default {loginUser,signupUser,logoutUser,getUserDetails};
