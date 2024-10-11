@@ -5,6 +5,7 @@ import MongoConnect from "./src/Configurations/DB_Connection.js"
 import "dotenv/config"
 
 import UserRoute from './src/Routes/UserRoute.js'
+import Schedule_Router from "./src/Routes/ScheduleRoute.js"
 
 const app = express()
 const PORT = process.env.PORT
@@ -23,6 +24,7 @@ next()
 
 //routes
 app.use('/auth',UserRoute)
+app.use('/schedule',Schedule_Router)
 
 app.listen(PORT , ()=>{
     Logger.info("Connected via Port " + PORT)
