@@ -10,7 +10,7 @@ Schedule_Router.get('/', ScheduleController.getAllSchedules);
 Schedule_Router.get('/user/:userid', ScheduleController.getSchedulesByUserId);
 
 // Create a new schedule
-Schedule_Router.post('/', ScheduleController.createSchedule);
+Schedule_Router.post('/create', ScheduleController.createSchedule);
 
 // Update a schedule by ID
 Schedule_Router.put('/:id', ScheduleController.updateSchedule);

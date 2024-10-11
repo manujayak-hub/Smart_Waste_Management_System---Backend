@@ -29,7 +29,7 @@ const scheduleSchema = new Schema({
   },
   jobstatus:{
     type: Boolean,
-    required: true,
+    default:false,
   },
   type: {
     type: String,
