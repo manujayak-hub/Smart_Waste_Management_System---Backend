@@ -23,6 +23,10 @@ const scheduleSchema = new Schema({
     type: String,
     required: true,
   },
+  area:{
+    type:String,
+    required:true
+  },
   timeslot:{
     type: String,
     required: true,

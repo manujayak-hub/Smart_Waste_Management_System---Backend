@@ -42,7 +42,7 @@ const getSchedulesByUserId = async (req, res) => {
 
 // Create a new schedule
 const createSchedule = async (req, res) => {
-  const { fname, lname, mobile, email,cdate, timeslot, jobstatus, type, description, userid } = req.body;
+  const { fname, lname, mobile, email,cdate,area, timeslot, jobstatus, type, description, userid } = req.body;
 
   const schedule = new Schedule({
     fname,
@@ -50,6 +50,7 @@ const createSchedule = async (req, res) => {
     mobile,
     email,
     cdate,
+    area,
     timeslot,
     jobstatus,
     type,
