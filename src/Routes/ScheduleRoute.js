@@ -4,7 +4,7 @@ import ScheduleController from '../Controllers/ScheduleController.js'; // Adjust
 const Schedule_Router = express.Router();
 
 // Get all schedules (not user-specific)
-Schedule_Router.get('/', ScheduleController.getAllSchedules);
+Schedule_Router.get('/view', ScheduleController.getAllSchedules);
 
 // Get schedules by user ID
 Schedule_Router.get('/user/:userid', ScheduleController.getSchedulesByUserId);
@@ -17,6 +17,9 @@ Schedule_Router.put('/:id', ScheduleController.updateSchedule);
 
 // Delete a schedule by ID
 Schedule_Router.delete('/:id', ScheduleController.deleteSchedule);
+
+//get schedule by id
+Schedule_Router.get('/doc/:id', ScheduleController.getSchedulesById)
 
 // Delete a schedule by ID without requiring user ID
 Schedule_Router.delete('/without-user/:id', ScheduleController.deleteScheduleWithoutUserId);

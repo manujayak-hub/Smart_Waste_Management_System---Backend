@@ -10,6 +10,21 @@ const getAllSchedules = async (req, res) => {
   }
 };
 
+// Get schedules by ID
+const getSchedulesById = async (req, res) => {
+  const { id } = req.params; 
+
+  try {
+    const schedules = await Schedule.findById(id);
+    if (schedules.length === 0) {
+      return res.status(404).json({ message: 'No schedules found for this id.' });
+    }
+    res.status(200).json(schedules);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Get schedules by user ID
 const getSchedulesByUserId = async (req, res) => {
   const { userid } = req.params; // Extract userid from the request parameters
@@ -104,5 +119,6 @@ export default {
   createSchedule,
   updateSchedule,
   deleteSchedule,
-  deleteScheduleWithoutUserId
+  deleteScheduleWithoutUserId,
+  getSchedulesById
 };
