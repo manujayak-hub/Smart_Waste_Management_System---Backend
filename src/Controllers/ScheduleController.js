@@ -1,4 +1,4 @@
-import Schedule from '../Models/ScheduleModel.js'; // Adjust the import path accordingly
+import Schedule from '../Models/ScheduleModel.js'; 
 
 // Get all schedules (not user-specific)
 const getAllSchedules = async (req, res) => {
@@ -113,7 +113,6 @@ const deleteScheduleWithoutUserId = async (req, res) => {
     }
   };
 
-// Exporting all functions
 export default {
   getAllSchedules,
   getSchedulesByUserId,
