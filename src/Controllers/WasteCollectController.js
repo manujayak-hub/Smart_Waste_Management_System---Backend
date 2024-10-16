@@ -25,6 +25,21 @@ const getWasteRecordsByResidenceId = async (req, res) => {
   }
 };
 
+// Get a single waste collection record by its unique ID
+const getWasteRecordById = async (req, res) => {
+  const { id } = req.params; // Extract the record ID from the request parameters
+
+  try {
+    const wasteRecord = await WasteCollection.findById(id);
+    if (!wasteRecord) {
+      return res.status(404).json({ message: 'Waste collection record not found.' });
+    }
+    res.status(200).json(wasteRecord);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Create a new waste collection record
 const createWasteRecord = async (req, res) => {
   const { residenceId, collectionDate, wasteType, amountCollected, collectorName } = req.body;
@@ -80,6 +95,7 @@ const deleteWasteRecord = async (req, res) => {
 export default {
   getAllWasteRecords,
   getWasteRecordsByResidenceId,
+  getWasteRecordById, // New function to get a record by ID
   createWasteRecord,
   updateWasteRecord,
   deleteWasteRecord
