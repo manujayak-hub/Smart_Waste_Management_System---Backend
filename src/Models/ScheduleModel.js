@@ -47,6 +47,7 @@ const scheduleSchema = new Schema({
     type: String,
     required: true,
   },
+  
 });
 
 
