@@ -5,7 +5,7 @@ import MongoConnect from "./src/Configurations/DB_Connection.js"
 import "dotenv/config"
 
 import UserRoute from './src/Routes/UserRoute.js'
-import Schedule_Router from "./src/Routes/ScheduleRoute.js"
+import ScheduleRouter from "./src/Routes/ScheduleRoute.js"
 
 import FeedbackRouter from "./src/Routes/FeedbackRouter.js"
 import ReportRouter from "./src/Routes/ReportRoute.js"; 
@@ -31,7 +31,7 @@ next()
 
 //routes
 app.use('/auth',UserRoute)
-app.use('/schedule',Schedule_Router)
+app.use('/schedule',ScheduleRouter)
 
 app.use('/feedback', FeedbackRouter);
 app.use('/reports', ReportRouter);
@@ -44,3 +44,6 @@ app.listen(PORT , ()=>{
     Logger.info("Connected via Port " + PORT)
     MongoConnect()
 })
+
+
+export default app; 
