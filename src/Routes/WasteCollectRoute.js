@@ -7,7 +7,10 @@ const WasteCollect_Router = express.Router();
 WasteCollect_Router.get('/', WasteCollectController.getAllWasteRecords);
 
 // Get waste collection records by residence/building ID
-WasteCollect_Router.get('/residence/:residenceId', WasteCollectController.getWasteRecordsByResidenceId);
+WasteCollect_Router.get('/residence/:residenceId', WasteCollectController.getWasteRecordsByResidenceId); // Adjusted path for residence ID
+
+// Get a specific waste collection record by ID
+WasteCollect_Router.get('/:id', WasteCollectController.getWasteRecordById); // New route for getting by waste record ID
 
 // Create a new waste collection record
 WasteCollect_Router.post('/create', WasteCollectController.createWasteRecord);
