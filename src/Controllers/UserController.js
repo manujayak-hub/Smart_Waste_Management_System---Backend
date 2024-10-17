@@ -24,10 +24,11 @@ const loginUser = async (req, res) => {
 
 // Signup a user
 const signupUser = async (req, res) => {
-  const { email, password, fname, lname, mobile,admintype } = req.body;
+  const { email, password, fname, lname, mobile,admintype ,residenceId} = req.body;
+  
 
   try {
-    const user = await User.signup(fname, lname, mobile, email, password,admintype);
+    const user = await User.signup(fname, lname, mobile, email, residenceId, password,admintype);
 
     // Create a token
     const token = createToken(user._id);
@@ -64,6 +65,7 @@ const getUserDetails = async (req, res) => {
     res.status(200).json({
       _id: user._id,
       email: user.email,
+      residenceId: user.residenceId,
       admintype: user.admintype
     });
   } catch (error) {

@@ -18,6 +18,10 @@ const userSchema = new mongoose.Schema({
     unique: true,
     validate: [validator.isEmail, 'Invalid email format']
   },
+  residenceId: {
+    type: String,   // ID of the residence or building
+    required: true,
+  },
   mobile: {
     type: String,
     required: true
@@ -33,9 +37,9 @@ const userSchema = new mongoose.Schema({
 });
 
 // Static signup method
-userSchema.statics.signup = async function(fname, lname, mobile, email, password, admintype) {
+userSchema.statics.signup = async function(fname, lname, mobile, email,residenceId, password, admintype) {
   // Validation checks
-  if (!email || !password || !fname || !lname || !mobile) {
+  if (!email || !password || !fname || !lname || !mobile || !residenceId) {
     throw Error('All fields must be filled');
   }
   
@@ -51,7 +55,7 @@ userSchema.statics.signup = async function(fname, lname, mobile, email, password
   const hashedPassword = await bcrypt.hash(password, salt);
 
   // Create and save the user
-  const user = await this.create({ fname, lname, mobile, email, password: hashedPassword, admintype });
+  const user = await this.create({ fname, lname, mobile, email,residenceId, password: hashedPassword, admintype, });
 
   return user;
 };
