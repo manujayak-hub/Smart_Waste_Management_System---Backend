@@ -24,10 +24,11 @@ const loginUser = async (req, res) => {
 
 // Signup a user
 const signupUser = async (req, res) => {
-  const { email, password, fname, lname, mobile,admintype } = req.body;
+  const { email, password, fname, lname, mobile,admintype ,residenceId} = req.body;
+  
 
   try {
-    const user = await User.signup(fname, lname, mobile, email, password,admintype);
+    const user = await User.signup(fname, lname, mobile, email, residenceId, password,admintype);
 
     // Create a token
     const token = createToken(user._id);
@@ -64,6 +65,7 @@ const getUserDetails = async (req, res) => {
     res.status(200).json({
       _id: user._id,
       email: user.email,
+      residenceId: user.residenceId,
       admintype: user.admintype
     });
   } catch (error) {
@@ -71,6 +73,16 @@ const getUserDetails = async (req, res) => {
   }
 };
 
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find(); // Fetch all users from the database
+    res.status(200).json(users);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+}
 
-// Exporting all functions as default
-export default {loginUser,signupUser,logoutUser,getUserDetails};
+
+export default {loginUser,signupUser,logoutUser,getUserDetails,getAllUsers};
+
