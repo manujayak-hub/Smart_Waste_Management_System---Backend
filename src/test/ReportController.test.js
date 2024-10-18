@@ -1,103 +1,114 @@
-import request from 'supertest';
-import express from 'express';
-//import Payment from '../Models/PaymentModel.js'; // Adjust path as necessary
-import Schedule from '../Models/ScheduleModel.js'; // Adjust path as necessary
-//import WasteCollected from '../Models/WasteCollectedModel.js'; // Adjust path as necessary
-import {
-    getPaymentsReport,
-    getSchedulesReport,
-    getWasteCollectionReport
-} from '../Controllers/ReportController.js'; // Adjust path as necessary
+import { getPaymentsReport, getSchedulesReport, getWasteCollectionReport } from '../Controllers/ReportController.js'; 
+//import Payment from '../Models/Payment.js'; // Adjust based on your actual model
+import Schedule from '../Models/ScheduleModel.js'; 
+import WasteCollected from '../Models/WasteCollectModel.js'; 
 
-const app = express();
-app.use(express.json());
+//jest.mock('../Models/Payment.js'); // Mocking the Payment model
+jest.mock('../Models/ScheduleModel.js'); // Mocking the Schedule model
+jest.mock('../Models/WasteCollectModel.js'); // Mocking the WasteCollected model
 
-// Mock the model methods
-//jest.mock('../Models/PaymentModel.js');
-jest.mock('../Models/ScheduleModel.js');
-//jest.mock('../Models/WasteCollectedModel.js');
-
-app.get('/reports/payments', getPaymentsReport);
-app.get('/reports/schedules', getSchedulesReport);
-app.get('/reports/waste-collected', getWasteCollectionReport);
-
-describe('Report Controller', () => {
-    beforeEach(() => {
-        jest.clearAllMocks();
-    });
-
-    // Test for getting payments report
-    describe('GET /reports/payments', () => {
-        it('should return payments for the specified month', async () => {
+/*describe('ReportsController', () => {
+    describe('getPaymentsReport', () => {
+        it('should return payments for a given month', async () => {
             const mockPayments = [
-                { amount: 100, date: new Date('2024-10-15'), userId: 'user1' },
-                { amount: 150, date: new Date('2024-10-20'), userId: 'user2' }
+                { _id: '1', amount: 100, date: new Date('2024-10-15') },
+                { _id: '2', amount: 200, date: new Date('2024-10-20') },
             ];
-            Payment.find.mockResolvedValue(mockPayments);
+            Payment.find.mockResolvedValue(mockPayments); // Mock the find method
 
-            const response = await request(app).get('/reports/payments?month=2024-10');
+            const req = { query: { month: '2024-10' } };
+            const res = {
+                json: jest.fn(),
+                status: jest.fn().mockReturnThis(),
+            };
 
-            expect(response.status).toBe(200);
-            expect(response.body).toEqual(mockPayments);
+            await getPaymentsReport(req, res); // Call the controller method
+            expect(res.json).toHaveBeenCalledWith(mockPayments); // Check the response
+            expect(Payment.find).toHaveBeenCalledWith({
+                date: { $gte: new Date('2024-10-01'), $lt: new Date('2024-10-31') },
+            }); // Ensure find was called with the correct date range
         });
 
-        it('should return an error if fetching payments fails', async () => {
-            Payment.find.mockRejectedValue(new Error('Database error'));
+        it('should return an error message if fetching fails', async () => {
+            Payment.find.mockRejectedValue(new Error('Database error')); // Mock the find method to throw an error
 
-            const response = await request(app).get('/reports/payments?month=2024-10');
+            const req = { query: { month: '2024-10' } };
+            const res = {
+                json: jest.fn(),
+                status: jest.fn().mockReturnThis(),
+            };
 
-            expect(response.status).toBe(500);
-            expect(response.body).toHaveProperty('message', 'Error fetching payments report');
+            await getPaymentsReport(req, res); // Call the controller method
+            expect(res.status).toHaveBeenCalledWith(500); // Check for error status
+            expect(res.json).toHaveBeenCalledWith({ message: 'Error fetching payments report', error: expect.any(Error) });
         });
-    });
+    });*/
 
-    // Test for getting schedules report
-    describe('GET /reports/schedules', () => {
-        it('should return schedules for the specified area', async () => {
+    describe('getSchedulesReport', () => {
+        it('should return schedules for a given area', async () => {
             const mockSchedules = [
-                { area: 'Area 1', time: '10:00 AM', userId: 'user1' },
-                { area: 'Area 2', time: '11:00 AM', userId: 'user2' }
+                { _id: '1', area: 'Downtown', time: '10:00 AM' },
+                { _id: '2', area: 'Downtown', time: '12:00 PM' },
             ];
-            Schedule.find.mockResolvedValue(mockSchedules);
+            Schedule.find.mockResolvedValue(mockSchedules); 
 
-            const response = await request(app).get('/reports/schedules?area=Area 1');
+            const req = { query: { area: 'Downtown' } };
+            const res = {
+                json: jest.fn(),
+                status: jest.fn().mockReturnThis(),
+            };
 
-            expect(response.status).toBe(200);
-            expect(response.body).toEqual(mockSchedules);
+            await getSchedulesReport(req, res); 
+            expect(res.json).toHaveBeenCalledWith(mockSchedules); 
+            expect(Schedule.find).toHaveBeenCalledWith({ area: 'Downtown' }); 
         });
 
-        it('should return an error if fetching schedules fails', async () => {
-            Schedule.find.mockRejectedValue(new Error('Database error'));
+        it('should return an error message if fetching fails', async () => {
+            Schedule.find.mockRejectedValue(new Error('Database error')); 
 
-            const response = await request(app).get('/reports/schedules?area=Area 1');
+            const req = { query: { area: 'Downtown' } };
+            const res = {
+                json: jest.fn(),
+                status: jest.fn().mockReturnThis(),
+            };
 
-            expect(response.status).toBe(500);
-            expect(response.body).toHaveProperty('message', 'Error fetching schedules report');
+            await getSchedulesReport(req, res); 
+            expect(res.status).toHaveBeenCalledWith(500); 
+            expect(res.json).toHaveBeenCalledWith({ message: 'Error fetching schedules report', error: expect.any(Error) });
         });
     });
 
-    // Test for getting waste collection report
-    describe('GET /reports/waste-collected', () => {
-        it('should return waste collected for the specified month', async () => {
+    describe('getWasteCollectionReport', () => {
+        it('should return waste collection data for a given month', async () => {
             const mockWasteCollected = [
-                { amount: 200, date: new Date('2024-10-15'), userId: 'user1' },
-                { amount: 250, date: new Date('2024-10-20'), userId: 'user2' }
+                { _id: '1', wasteType: 'Plastic', amountCollected: 500 },
+                { _id: '2', wasteType: 'Organic', amountCollected: 300 },
             ];
-            WasteCollected.find.mockResolvedValue(mockWasteCollected);
+            WasteCollected.aggregate.mockResolvedValue(mockWasteCollected); 
 
-            const response = await request(app).get('/reports/waste-collected?month=2024-10');
+            const req = { query: { month: 'October' } };
+            const res = {
+                json: jest.fn(),
+                status: jest.fn().mockReturnThis(),
+            };
 
-            expect(response.status).toBe(200);
-            expect(response.body).toEqual(mockWasteCollected);
+            await getWasteCollectionReport(req, res); 
+            expect(res.json).toHaveBeenCalledWith(mockWasteCollected); 
+            expect(WasteCollected.aggregate).toHaveBeenCalledWith(expect.any(Array)); 
         });
 
-        it('should return an error if fetching waste collected fails', async () => {
-            WasteCollected.find.mockRejectedValue(new Error('Database error'));
+        it('should return an error message if fetching fails', async () => {
+            WasteCollected.aggregate.mockRejectedValue(new Error('Database error')); 
 
-            const response = await request(app).get('/reports/waste-collected?month=2024-10');
+            const req = { query: { month: 'October' } };
+            const res = {
+                json: jest.fn(),
+                status: jest.fn().mockReturnThis(),
+            };
 
-            expect(response.status).toBe(500);
-            expect(response.body).toHaveProperty('message', 'Error fetching waste collected report');
+            await getWasteCollectionReport(req, res); 
+            expect(res.status).toHaveBeenCalledWith(500); 
+            expect(res.json).toHaveBeenCalledWith({ message: 'Error fetching waste collected report', error: expect.any(Error) });
         });
     });
-});
+

@@ -16,4 +16,5 @@ UserRoute.post('/logout', UserController.logoutUser);
 // Get user details (protected)
 UserRoute.get('/me', requireAuth, UserController.getUserDetails);
 
+UserRoute.get('/getAll', UserController.getAllUsers); 
 export default  UserRoute;
