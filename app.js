@@ -7,6 +7,11 @@ import "dotenv/config"
 import UserRoute from './src/Routes/UserRoute.js'
 import Schedule_Router from "./src/Routes/ScheduleRoute.js"
 
+import ScheduleRouter from "./src/Routes/ScheduleRoute.js"
+import PamentRoute from './src/Routes/PaymentRoute.js'
+import userpay from './src/Routes/UserPayRoute.js'
+
+
 import FeedbackRouter from "./src/Routes/FeedbackRouter.js"
 import ReportRouter from "./src/Routes/ReportRoute.js"; 
 
