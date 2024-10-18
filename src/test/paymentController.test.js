@@ -87,7 +87,7 @@ describe('Payment Controller', () => {
 
       const res = await request(app).put('/update/invalidId').send({});
 
-      expect(res.status).toBe(400);
+      expect(res.status).toBe(404);
       expect(res.body.error).toBe('Payment not found');
     });
   });

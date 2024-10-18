@@ -10,4 +10,5 @@ router.delete('/delete/:id', deletePayment);
 router.get('/get', getPayments);
 router.get('/getuserpay', requireAuth, getPaymentuser);
 
+
 export default router;

@@ -24,18 +24,24 @@ export const addPayment = async (req, res) => {
 
 // Update payment
 export const updatePayment = async (req, res) => {
-  const { id } = req.params;
   try {
-    const payment = await Payment.findByIdAndUpdate(id, req.body, { new: true });
-    if (!payment) throw Error('Payment not found');
-    payment.calculateTotalBill();
-    await payment.save();
-    res.status(200).json(payment);
+    const paymentId = req.params.id;
+    const updates = req.body;
+
+    if (!updates) {
+      return res.status(400).json({ error: 'No data provided for update' });
+    }
+
+    const updatedPayment = await Payment.findByIdAndUpdate(paymentId, updates, { new: true });
+    if (!updatedPayment) {
+      return res.status(404).json({ error: 'Payment not found' });
+    }
+
+    res.status(200).json(updatedPayment);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(500).json({ error: 'Server error' });
   }
 };
-
 // Delete payment
 export const deletePayment = async (req, res) => {
   const { id } = req.params;
