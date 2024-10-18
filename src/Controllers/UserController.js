@@ -83,5 +83,6 @@ const getAllUsers = async (req, res) => {
   }
 }
 
-// Exporting all functions as default
+
 export default {loginUser,signupUser,logoutUser,getUserDetails,getAllUsers};
+
