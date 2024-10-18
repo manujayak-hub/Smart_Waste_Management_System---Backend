@@ -10,6 +10,13 @@ import PamentRoute from './src/Routes/PaymentRoute.js'
 import userpay from './src/Routes/UserPayRoute.js'
 
 
+import FeedbackRouter from "./src/Routes/FeedbackRouter.js"
+import ReportRouter from "./src/Routes/ReportRoute.js"; 
+
+import WasteCollect_Router from "./src/Routes/WasteCollectRoute.js"
+
+import Type_Router from "./src/Routes/TypeRoute.js"
+
 const app = express()
 const PORT = process.env.PORT
 
@@ -31,6 +38,13 @@ app.use('/schedule',Schedule_Router)
 app.use('/api/payments', PamentRoute);
 app.use('/api/userpay', userpay);
 
+
+
+app.use('/feedback', FeedbackRouter);
+app.use('/reports', ReportRouter);
+
+app.use('/WasteCollection',WasteCollect_Router)
+app.use('/type',Type_Router)
 
 
 app.listen(PORT , ()=>{
