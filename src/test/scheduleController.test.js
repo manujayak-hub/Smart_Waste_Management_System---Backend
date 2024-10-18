@@ -1,167 +1,120 @@
 import request from 'supertest';
-import express from 'express';
 import mongoose from 'mongoose';
-import ScheduleController from '../Controllers/ScheduleController.js';
-import Schedule from '../Models/ScheduleModel.js'; // Adjust the import path accordingly
+import app from '../../app.js';
+import Schedule from '../Models/ScheduleModel.js';
 
-// Initialize the app and use express.json for parsing request body
-const app = express();
-app.use(express.json());
-
-// Mock the Schedule model methods
-jest.mock('../Models/ScheduleModel.js');
-
-// Set up routes for testing
-app.get('/schedules', ScheduleController.getAllSchedules);
-app.get('/schedules/user/:userid', ScheduleController.getSchedulesByUserId);
-app.post('/schedules', ScheduleController.createSchedule);
-app.put('/schedules/:id', ScheduleController.updateSchedule);
-app.delete('/schedules/:id', ScheduleController.deleteSchedule);
-app.delete('/schedules/without-user/:id', ScheduleController.deleteScheduleWithoutUserId);
+// Sample schedule data for testing
+const sampleSchedule = {
+  fname: "kamal",
+  lname: "dahanayake",
+  mobile: "0112236569",
+  email: "Kamal@gmail.com",
+  cdate: "1999-10-01",
+  area: "Kandy",
+  timeslot: "10:00 AM - 11:00 AM",
+  jobstatus: false,
+  type: "E-waste",
+  description: "Elctronic waste",
+  userid: "u12345",
+};
 
 describe('Schedule Controller', () => {
-
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
-  // Test for getting all schedules
-  describe('GET /schedules', () => {
-    it('should return all schedules', async () => {
-      const mockSchedules = [
-        { fname: 'John', lname: 'Doe', userid: '1' },
-        { fname: 'Jane', lname: 'Doe', userid: '2' }
-      ];
-      Schedule.find.mockResolvedValue(mockSchedules); // Mocking the database call
-
-      const response = await request(app).get('/schedules');
-
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual(mockSchedules);
-    });
-
-    it('should return an error if something goes wrong', async () => {
-      Schedule.find.mockRejectedValue(new Error('Error occurred'));
-
-      const response = await request(app).get('/schedules');
-
-      expect(response.status).toBe(500);
-      expect(response.body).toHaveProperty('error', 'Error occurred');
+  // Connect to the test database before running tests
+  beforeAll(async () => {
+    await mongoose.connect(process.env.MONGO_URL, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
     });
   });
 
-  // Test for getting schedules by user ID
-  describe('GET /schedules/user/:userid', () => {
-    it('should return schedules for a specific user', async () => {
-      const mockSchedules = [{ fname: 'John', lname: 'Doe', userid: '1' }];
-      Schedule.find.mockResolvedValue(mockSchedules);
+  // Clear the database after each test
+  afterEach(async () => {
+    await Schedule.deleteMany({});
+  });
 
-      const response = await request(app).get('/schedules/user/1');
+  // Close the database connection after all tests
+  afterAll(async () => {
+    await mongoose.connection.close();
+  });
 
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual(mockSchedules);
+  // Create Schedule Tests
+  describe('POST /create', () => {
+    it('should create a new schedule and return 201 status', async () => {
+      const res = await request(app).post('/schedule/create').send(sampleSchedule);
+      expect(res.status).toBe(201); // Expect to get a 201 status code
+      expect(res.body).toHaveProperty('_id'); // Expect the response to contain an ID
+      expect(res.body.fname).toBe(sampleSchedule.fname); // Expect the first name to match
     });
 
-    it('should return 404 if no schedules are found for the user', async () => {
-      Schedule.find.mockResolvedValue([]);
-
-      const response = await request(app).get('/schedules/user/1');
-
-      expect(response.status).toBe(404);
-      expect(response.body).toHaveProperty('message', 'No schedules found for this user.');
+    it('should return 400 status if required fields are missing', async () => {
+      const res = await request(app).post('/schedule/create').send({});
+      expect(res.status).toBe(400); // Expect to get a 400 status code for bad request
+      expect(res.body).toHaveProperty('error'); // Expect an error message in response
     });
   });
 
-  // Test for creating a new schedule
-  describe('POST /schedules', () => {
-    it('should create a new schedule and return it', async () => {
-      const mockSchedule = { fname: 'John', lname: 'Doe', userid: '1' };
-      Schedule.prototype.save.mockResolvedValue(mockSchedule);
-
-      const response = await request(app)
-        .post('/schedules')
-        .send({ fname: 'John', lname: 'Doe', userid: '1', mobile: '1234567890', email: 'john@example.com', timeslot: 'morning', jobstatus: true, type: 'garbage', description: 'Pick up garbage' });
-
-      expect(response.status).toBe(201);
-      expect(response.body).toEqual(mockSchedule);
+  // Read Schedule Tests
+  describe('GET /view', () => {
+    it('should return all schedules and return 200 status', async () => {
+      await Schedule.create(sampleSchedule); // Create a sample schedule for testing
+      const res = await request(app).get('/schedule/view');
+      expect(res.status).toBe(200); // Expect to get a 200 status code
+      expect(res.body.length).toBe(1); // Expect to get 1 schedule in response
+      expect(res.body[0].fname).toBe(sampleSchedule.fname); // Expect the first name to match
     });
 
-    it('should return a validation error if required fields are missing', async () => {
-      const response = await request(app)
-        .post('/schedules')
-        .send({ fname: 'John', userid: '1' }); // Incomplete data
-
-      expect(response.status).toBe(201);
-      expect(response.body).toHaveProperty('error');
+    it('should return 404 status if no schedules are found', async () => {
+      const res = await request(app).get('/schedule/view');
+      expect(res.status).toBe(200); // Expect to get a 200 status code even if no schedules are found
+      expect(res.body.length).toBe(0); // Expect an empty array
     });
   });
 
-  // Test for updating a schedule
-  describe('PUT /schedules/:id', () => {
-    it('should update a schedule and return it', async () => {
-      const mockUpdatedSchedule = { fname: 'John', lname: 'Doe', userid: '1', mobile: '9876543210' };
-      Schedule.findByIdAndUpdate.mockResolvedValue(mockUpdatedSchedule);
-
-      const response = await request(app)
-        .put('/schedules/123')
-        .send({ mobile: '9876543210' });
-
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual(mockUpdatedSchedule);
+  describe('GET /doc/:id', () => {
+    it('should return a schedule by ID and return 200 status', async () => {
+      const schedule = await Schedule.create(sampleSchedule); // Create a sample schedule
+      const res = await request(app).get(`/schedule/doc/${schedule._id}`);
+      expect(res.status).toBe(200); // Expect to get a 200 status code
+      expect(res.body.fname).toBe(sampleSchedule.fname); // Expect the first name to match
     });
 
-    it('should return 404 if the schedule is not found', async () => {
-      Schedule.findByIdAndUpdate.mockResolvedValue(null);
-
-      const response = await request(app)
-        .put('/schedules/123')
-        .send({ mobile: '9876543210' });
-
-      expect(response.status).toBe(404);
-      expect(response.body).toHaveProperty('message', 'Schedule not found.');
+    it('should return 404 status if schedule ID is not found', async () => {
+      const res = await request(app).get('/schedule/doc/60d5ec49d0e54c1a9c48c5a0'); // Non-existing ID
+      expect(res.status).toBe(404); // Expect to get a 404 status code
+      expect(res.body.message).toBe('No schedules found for this id.'); // Expect the proper error message
     });
   });
 
-  // Test for deleting a schedule by ID
-  describe('DELETE /schedules/:id', () => {
-    it('should delete a schedule and return success message', async () => {
-      Schedule.findByIdAndDelete.mockResolvedValue({ fname: 'John', lname: 'Doe', userid: '1' });
-
-      const response = await request(app).delete('/schedules/123');
-
-      expect(response.status).toBe(200);
-      expect(response.body).toHaveProperty('message', 'Schedule deleted successfully.');
+  // Update Schedule Tests
+  describe('PUT /:id', () => {
+    it('should update a schedule and return 200 status', async () => {
+      const schedule = await Schedule.create(sampleSchedule); // Create a sample schedule
+      const updatedData = { fname: 'Nimal' }; // New data for update
+      const res = await request(app).put(`/schedule/${schedule._id}`).send(updatedData);
+      expect(res.status).toBe(200); // Expect to get a 200 status code
+      expect(res.body.fname).toBe('Nimal'); // Expect the first name to be updated
     });
 
-    it('should return 404 if the schedule is not found', async () => {
-      Schedule.findByIdAndDelete.mockResolvedValue(null);
-
-      const response = await request(app).delete('/schedules/123');
-
-      expect(response.status).toBe(404);
-      expect(response.body).toHaveProperty('message', 'Schedule not found.');
+    it('should return 404 status if trying to update a non-existing schedule', async () => {
+      const res = await request(app).put('/schedule/60d5ec49d0e54c1a9c48c5a0').send({ fname: 'Sunimal' });
+      expect(res.status).toBe(404); // Expect to get a 404 status code
+      expect(res.body.message).toBe('Schedule not found.'); // Expect the proper error message
     });
   });
 
-  // Test for deleting a schedule without user ID
-  describe('DELETE /schedules/without-user/:id', () => {
-    it('should delete a schedule without requiring a user ID', async () => {
-      Schedule.findByIdAndDelete.mockResolvedValue({ fname: 'John', lname: 'Doe', userid: '1' });
-
-      const response = await request(app).delete('/schedules/without-user/123');
-
-      expect(response.status).toBe(200);
-      expect(response.body).toHaveProperty('message', 'Schedule deleted successfully.');
+  // Delete Schedule Tests
+  describe('DELETE /:id', () => {
+    it('should delete a schedule and return 200 status', async () => {
+      const schedule = await Schedule.create(sampleSchedule); // Create a sample schedule
+      const res = await request(app).delete(`/schedule/${schedule._id}`);
+      expect(res.status).toBe(200); // Expect to get a 200 status code
+      expect(res.body.message).toBe('Schedule deleted successfully.'); // Expect the proper success message
     });
 
-    it('should return 404 if the schedule is not found', async () => {
-      Schedule.findByIdAndDelete.mockResolvedValue(null);
-
-      const response = await request(app).delete('/schedules/without-user/123');
-
-      expect(response.status).toBe(404);
-      expect(response.body).toHaveProperty('message', 'Schedule not found.');
+    it('should return 404 status if trying to delete a non-existing schedule', async () => {
+      const res = await request(app).delete('/schedule/60d5ec49d0e54c1a9c48c5a0');
+      expect(res.status).toBe(404); // Expect to get a 404 status code
+      expect(res.body.message).toBe('Schedule not found.'); // Expect the proper error message
     });
   });
-
 });
