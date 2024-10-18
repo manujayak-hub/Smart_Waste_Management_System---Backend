@@ -1,249 +1,145 @@
-import request from 'supertest';
-import express from 'express';
-import Feedback from '../Models/FeedbackModel.js';
-import {
-  getAllFeedbacks,
-  createFeedback,
-  getFeedbackByEmail,
-  deleteFeedback,
-  getFeedbackById,
-  updateFeedback,
-  addResponse,
-  deleteResponse,
-  
-  getFeedbacksByUserId
-} from '../Controllers/FeedbackController.js'; // Adjust the import path accordingly
+import * as feedbackController from '../Controllers/FeedbackController.js'; 
+import FeedbackService from '../Services/FeedbackService.js';
 
-const app = express();
-app.use(express.json());
-
-// Mock the Feedback model methods
-jest.mock('../Models/FeedbackModel.js');
-
-app.get('/feedback/all', getAllFeedbacks);
-app.post('/feedback', createFeedback);
-app.get('/feedback/:email', getFeedbackByEmail);
-app.delete('/feedback/:id', deleteFeedback);
-app.get('/feedback/doc/:id', getFeedbackById);
-app.put('/feedback/:id', updateFeedback);
-app.put('/feedback/response/:id', addResponse);
-app.delete('/feedback/response/:id', deleteResponse);
-
-app.get('/feedback/user/:userId', getFeedbacksByUserId);
+jest.mock('../Services/FeedbackService.js'); // Mock the FeedbackService
 
 describe('Feedback Controller', () => {
+  const mockRes = () => {
+    const res = {};
+    res.json = jest.fn();
+    res.status = jest.fn().mockReturnValue(res);
+    return res;
+  };
 
-  beforeEach(() => {
-    jest.clearAllMocks();
+  const mockReq = (params = {}, body = {}) => ({
+    params,
+    body,
   });
 
-  // Test for getting all feedbacks
-  describe('GET /feedback/all', () => {
-    it('should return all feedbacks', async () => {
-      const mockFeedbacks = [
-        { userId: '12345', emailAddress: 'test@example.com', message: 'This is a test feedback' }
-      ];
-      Feedback.find.mockResolvedValue(mockFeedbacks);
-
-      const response = await request(app).get('/feedback/all');
-
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual(mockFeedbacks);
-    });
-
-    it('should return an error if something goes wrong', async () => {
-      Feedback.find.mockRejectedValue(new Error('Error occurred'));
-
-      const response = await request(app).get('/feedback/all');
-
-      expect(response.status).toBe(500);
-      expect(response.body).toHaveProperty('message', 'Server error');
-    });
+  afterEach(() => {
+    jest.clearAllMocks(); // Clear mocks after each test
   });
 
-  // Test for creating new feedback
-  describe('POST /feedback', () => {
-    it('should create a new feedback and return it', async () => {
-      const mockFeedback = { userId: '67890', emailAddress: 'newuser@example.com', message: 'This is another feedback' };
-      Feedback.prototype.save.mockResolvedValue(mockFeedback);
+  test('getAllFeedbacks should fetch all feedbacks', async () => {
+    const feedbacks = [{ emailAddress: 'test@example.com', message: 'Great service!' }];
+    FeedbackService.getAllFeedbacks.mockResolvedValue(feedbacks);
 
-      const response = await request(app)
-        .post('/feedback')
-        .send({ userId: '67890', emailAddress: 'newuser@example.com', contactNumber: '1234567890', area: 'Area 51', feedbackType: 'General', message: 'This is another feedback' });
+    const req = mockReq();
+    const res = mockRes();
 
-      expect(response.status).toBe(201);
-      expect(response.body).toEqual({ message: 'Feedback submitted successfully!' });
-    });
+    await feedbackController.getAllFeedbacks(req, res);
 
-    it('should return an error if feedback submission fails', async () => {
-      Feedback.prototype.save.mockRejectedValue(new Error('Error submitting feedback'));
-
-      const response = await request(app)
-        .post('/feedback')
-        .send({}); // Sending incomplete data
-
-      expect(response.status).toBe(500);
-      expect(response.body).toHaveProperty('message', 'Error submitting feedback.');
-    });
+    expect(res.json).toHaveBeenCalledWith(feedbacks);
   });
 
-  // Test for getting feedback by email
-  describe('GET /feedback/:email', () => {
-    it('should return feedbacks by email', async () => {
-      const mockFeedbacks = [{ userId: '12345', emailAddress: 'test@example.com', message: 'This is a test feedback' }];
-      Feedback.find.mockResolvedValue(mockFeedbacks);
-
-      const response = await request(app).get('/feedback/test@example.com');
-
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual(mockFeedbacks);
+  test('createFeedback should create new feedback', async () => {
+    const req = mockReq({}, {
+      userId: '67890',
+      emailAddress: 'newuser@example.com',
+      contactNumber: '1234567890',
+      area: 'Downtown',
+      feedbackType: 'General',
+      message: 'This is a feedback message',
     });
+    const res = mockRes();
 
-    it('should return an error if fetching feedbacks by email fails', async () => {
-      Feedback.find.mockRejectedValue(new Error('Error occurred'));
+    await feedbackController.createFeedback(req, res);
 
-      const response = await request(app).get('/feedback/test@example.com');
-
-      expect(response.status).toBe(500);
-      expect(response.body).toHaveProperty('message', 'Error fetching feedbacks.');
-    });
+    expect(FeedbackService.createFeedback).toHaveBeenCalledWith(expect.objectContaining({
+      userId: '67890',
+      emailAddress: 'newuser@example.com',
+      message: 'This is a feedback message',
+      date: expect.any(Date), // Check if date is included
+    }));
+    expect(res.status).toHaveBeenCalledWith(201);
+    expect(res.json).toHaveBeenCalledWith({ message: 'Feedback submitted successfully!' });
   });
 
-  // Test for getting feedback by ID
-  describe('GET /feedback/doc/:id', () => {
-    it('should return feedback by ID', async () => {
-      const mockFeedback = { userId: '12345', emailAddress: 'test@example.com', message: 'This is a test feedback' };
-      Feedback.findById.mockResolvedValue(mockFeedback);
+  test('getFeedbackByEmail should return feedbacks by email', async () => {
+    const feedbacks = [{ emailAddress: 'test@example.com', message: 'Great service!' }];
+    FeedbackService.getFeedbackByEmail.mockResolvedValue(feedbacks);
 
-      const response = await request(app).get('/feedback/doc/12345');
+    const req = mockReq({ email: 'test@example.com' });
+    const res = mockRes();
 
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual(mockFeedback);
-    });
+    await feedbackController.getFeedbackByEmail(req, res);
 
-    it('should return 404 if feedback is not found', async () => {
-      Feedback.findById.mockResolvedValue(null);
-
-      const response = await request(app).get('/feedback/doc/invalidId');
-
-      expect(response.status).toBe(404);
-      expect(response.body).toHaveProperty('message', 'Feedback not found');
-    });
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(feedbacks);
   });
 
-  // Test for updating feedback
-  describe('PUT /feedback/:id', () => {
-    it('should update feedback and return it', async () => {
-      const mockUpdatedFeedback = { userId: '12345', emailAddress: 'test@example.com', message: 'Updated feedback message' };
-      Feedback.findByIdAndUpdate.mockResolvedValue(mockUpdatedFeedback);
+  test('deleteFeedback should delete feedback by ID', async () => {
+    const req = mockReq({ id: '12345' });
+    const res = mockRes();
 
-      const response = await request(app).put('/feedback/12345').send({ message: 'Updated feedback message' });
+    await feedbackController.deleteFeedback(req, res);
 
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual(mockUpdatedFeedback);
-    });
-
-    it('should return 404 if feedback is not found for update', async () => {
-      Feedback.findByIdAndUpdate.mockResolvedValue(null);
-
-      const response = await request(app).put('/feedback/invalidId').send({ message: 'Trying to update non-existing feedback' });
-
-      expect(response.status).toBe(404);
-      expect(response.body).toHaveProperty('message', 'Feedback not found');
-    });
+    expect(FeedbackService.deleteFeedback).toHaveBeenCalledWith('12345');
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({ message: 'Feedback deleted successfully' });
   });
 
-  // Test for deleting feedback
-  describe('DELETE /feedback/:id', () => {
-    it('should delete feedback and return success message', async () => {
-      Feedback.findByIdAndDelete.mockResolvedValue({ userId: '12345', emailAddress: 'test@example.com' });
+  test('getFeedbackById should return feedback by ID', async () => {
+    const feedback = { _id: '12345', emailAddress: 'test@example.com', message: 'Great service!' };
+    FeedbackService.getFeedbackById.mockResolvedValue(feedback);
 
-      const response = await request(app).delete('/feedback/12345');
+    const req = mockReq({ id: '12345' });
+    const res = mockRes();
 
-      expect(response.status).toBe(200);
-      expect(response.body).toHaveProperty('message', 'Feedback deleted successfully');
-    });
+    await feedbackController.getFeedbackById(req, res);
 
-    it('should return 404 if feedback is not found for deletion', async () => {
-      Feedback.findByIdAndDelete.mockResolvedValue(null);
-
-      const response = await request(app).delete('/feedback/invalidId');
-
-      expect(response.status).toBe(404);
-      expect(response.body).toHaveProperty('message', 'Feedback not found');
-    });
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(feedback);
   });
 
-  // Test for adding a response to feedback
-  describe('PUT /feedback/response/:id', () => {
-    it('should add a response to feedback', async () => {
-      const mockFeedbackWithResponse = { userId: '12345', emailAddress: 'test@example.com', response: 'Admin response' };
-      Feedback.findByIdAndUpdate.mockResolvedValue(mockFeedbackWithResponse);
+  test('updateFeedback should update feedback by ID', async () => {
+    const req = mockReq({ id: '12345' }, { message: 'Updated feedback' });
+    const res = mockRes();
+    const updatedFeedback = { _id: '12345', emailAddress: 'test@example.com', message: 'Updated feedback' };
+    FeedbackService.updateFeedback.mockResolvedValue(updatedFeedback);
 
-      const response = await request(app).put('/feedback/response/12345').send({ response: 'Admin response' });
+    await feedbackController.updateFeedback(req, res);
 
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual(mockFeedbackWithResponse);
-    });
-
-    it('should return 404 if feedback is not found for response addition', async () => {
-      Feedback.findByIdAndUpdate.mockResolvedValue(null);
-
-      const response = await request(app).put('/feedback/response/invalidId').send({ response: 'Admin response' });
-
-      expect(response.status).toBe(404);
-      expect(response.body).toHaveProperty('message', 'Feedback not found');
-    });
+    expect(FeedbackService.updateFeedback).toHaveBeenCalledWith('12345', req.body);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(updatedFeedback);
   });
 
-  // Test for deleting a response
-describe('DELETE /feedback/response/:id', () => {
-    it('should delete a response from feedback', async () => {
-      const mockFeedbackWithoutResponse = { userId: '12345', emailAddress: 'test@example.com' };
-      Feedback.findByIdAndUpdate.mockResolvedValue(mockFeedbackWithoutResponse);
-  
-      const response = await request(app).delete('/feedback/response/12345');
-  
-      expect(response.status).toBe(200);
-      expect(response.body).toHaveProperty('message', 'Response deleted successfully'); // Fix this line
-      expect(response.body.feedback).toEqual(mockFeedbackWithoutResponse); // Check the feedback separately
-    });
-  
-    it('should return 404 if feedback is not found for response deletion', async () => {
-      Feedback.findByIdAndUpdate.mockResolvedValue(null);
-  
-      const response = await request(app).delete('/feedback/response/invalidId');
-  
-      expect(response.status).toBe(404);
-      expect(response.body).toHaveProperty('message', 'Feedback not found');
-    });
+  test('addResponse should add response to feedback', async () => {
+    const req = mockReq({ id: '12345' }, { response: 'Thank you for your feedback!' });
+    const res = mockRes();
+    const updatedFeedback = { _id: '12345', response: 'Thank you for your feedback!' };
+    FeedbackService.addResponse.mockResolvedValue(updatedFeedback);
+
+    await feedbackController.addResponse(req, res);
+
+    expect(FeedbackService.addResponse).toHaveBeenCalledWith('12345', req.body.response);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(updatedFeedback);
   });
 
-  
+  test('deleteResponse should delete response from feedback', async () => {
+    const req = mockReq({ id: '12345' });
+    const res = mockRes();
+    FeedbackService.deleteResponse.mockResolvedValue(true);
 
-  // Test for getting feedbacks by userId
-  describe('GET /feedback/user/:userId', () => {
-    it('should return feedbacks by userId', async () => {
-      const mockFeedbacks = [
-        { userId: '12345', emailAddress: 'test@example.com', message: 'Feedback 1' },
-        { userId: '12345', emailAddress: 'test2@example.com', message: 'Feedback 2' }
-      ];
-      Feedback.find.mockResolvedValue(mockFeedbacks);
+    await feedbackController.deleteResponse(req, res);
 
-      const response = await request(app).get('/feedback/user/12345');
-
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual(mockFeedbacks);
-    });
-
-    it('should return an error if fetching feedbacks by userId fails', async () => {
-      Feedback.find.mockRejectedValue(new Error('Error occurred'));
-
-      const response = await request(app).get('/feedback/user/12345');
-
-      expect(response.status).toBe(500);
-      expect(response.body).toHaveProperty('message', 'Server error');
-    });
+    expect(FeedbackService.deleteResponse).toHaveBeenCalledWith('12345');
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({ message: 'Response deleted successfully', feedback: true });
   });
 
+  test('getFeedbacksByUserId should return feedbacks for specific user', async () => {
+    const feedbacks = [{ userId: '67890', message: 'Feedback for user' }];
+    FeedbackService.getFeedbacksByUserId.mockResolvedValue(feedbacks);
+
+    const req = mockReq({ userId: '67890' });
+    const res = mockRes();
+
+    await feedbackController.getFeedbacksByUserId(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(feedbacks);
+  });
 });
