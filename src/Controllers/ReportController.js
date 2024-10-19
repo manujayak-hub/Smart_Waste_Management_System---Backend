@@ -1,17 +1,41 @@
-//import Payment from '../models/Payment'; // Adjust based on your actual model
+import UserPayment from '../Models/UserPayementModel.js';
 import Schedule from '../Models/ScheduleModel.js'; // Adjust based on your actual model
 import WasteCollected from '../Models/WasteCollectModel.js'; 
 
-export const getPaymentsReport = async (req, res) => {
-    const { month } = req.query; // Expecting month in format YYYY-MM
-
+// Convert month name to month number
+const getMonthNumber = (monthName) => {
+    const monthNames = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    return monthNames.indexOf(monthName) + 1;
+  };
+  
+  // Fetch payment report by month name (e.g., "October")
+  export const getUserPaymentReport = async (req, res) => {
+    const { month } = req.query; // Expecting full month name (e.g., "October")
+  
     try {
-        const payments = await Payment.find({ date: { $gte: new Date(`${month}-01`), $lt: new Date(`${month}-31`) } });
-        res.json(payments);
+      // Convert month name to month number
+      const monthNumber = getMonthNumber(month);
+  
+      if (monthNumber === 0) {
+        return res.status(400).json({ message: 'Invalid month name' });
+      }
+  
+      // Create a regex pattern to match the month in the "YYYY/MM/DD" format
+      const monthRegex = new RegExp(`^\\d{4}/${monthNumber.toString().padStart(2, '0')}`);
+  
+      // Find payments where the createdAt field matches the given month
+      const payments = await UserPayment.find({
+        createdAt: { $regex: monthRegex }
+      });
+  
+      res.json(payments);
     } catch (error) {
-        res.status(500).json({ message: 'Error fetching payments report', error });
+      res.status(500).json({ message: 'Error fetching user payments report', error });
     }
-};
+  };
 
 export const getSchedulesReport = async (req, res) => {
     const { area } = req.query;

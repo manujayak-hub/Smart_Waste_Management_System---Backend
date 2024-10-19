@@ -1,98 +1,147 @@
+// FeedbackService.test.js
 import FeedbackService from '../Services/FeedbackService.js';
 import FeedbackRepository from '../Repositories/FeedbackRepository.js';
 
-jest.mock('../Repositories/FeedbackRepository.js'); // Mock the FeedbackRepository
+// Mocking the FeedbackRepository
+jest.mock('../Repositories/FeedbackRepository.js');
 
 describe('FeedbackService', () => {
+  
   afterEach(() => {
-    jest.clearAllMocks(); // Clear mocks after each test
+    jest.clearAllMocks();
   });
 
-  test('getAllFeedbacks should return all feedbacks', async () => {
-    const mockFeedbacks = [{ emailAddress: 'test@example.com', message: 'Great service!' }];
-    FeedbackRepository.getAllFeedbacks.mockResolvedValue(mockFeedbacks); // Mock return value
+  const mockFeedbackData = {
+    userId: 'user123',
+    emailAddress: 'test@example.com',
+    contactNumber: '1234567890',
+    area: 'Some Area',
+    feedbackType: 'General',
+    message: 'This is a feedback message.',
+  };
 
-    const feedbacks = await FeedbackService.getAllFeedbacks();
-    expect(feedbacks).toEqual(mockFeedbacks);
-    expect(FeedbackRepository.getAllFeedbacks).toHaveBeenCalledTimes(1); 
+  const feedbackId = 'feedback123';
+
+  // Positive test cases
+  it('should create feedback successfully', async () => {
+    FeedbackRepository.createFeedback.mockResolvedValue(mockFeedbackData);
+
+    const result = await FeedbackService.createFeedback(mockFeedbackData);
+    expect(result).toEqual(mockFeedbackData);
+    expect(FeedbackRepository.createFeedback).toHaveBeenCalledWith(mockFeedbackData);
   });
 
-  test('createFeedback should create feedback and return it', async () => {
-    const feedbackData = { userId: '67890', emailAddress: 'newuser@example.com', message: 'This is another feedback' };
-    FeedbackRepository.createFeedback.mockResolvedValue(feedbackData); // Mock return value
+  it('should get all feedbacks successfully', async () => {
+    FeedbackRepository.getAllFeedbacks.mockResolvedValue([mockFeedbackData]);
 
-    const createdFeedback = await FeedbackService.createFeedback(feedbackData);
-    expect(createdFeedback).toEqual(feedbackData);
-    expect(FeedbackRepository.createFeedback).toHaveBeenCalledWith(feedbackData); 
+    const result = await FeedbackService.getAllFeedbacks();
+    expect(result).toEqual([mockFeedbackData]);
+    expect(FeedbackRepository.getAllFeedbacks).toHaveBeenCalled();
   });
 
-  test('getFeedbackByEmail should return feedbacks by email', async () => {
-    const email = 'test@example.com';
-    const mockFeedbacks = [{ emailAddress: email, message: 'Great service!' }];
-    FeedbackRepository.getFeedbackByEmail.mockResolvedValue(mockFeedbacks); // Mock return value
+  it('should get feedback by email successfully', async () => {
+    FeedbackRepository.getFeedbackByEmail.mockResolvedValue([mockFeedbackData]);
 
-    const feedbacks = await FeedbackService.getFeedbackByEmail(email);
-    expect(feedbacks).toEqual(mockFeedbacks);
-    expect(FeedbackRepository.getFeedbackByEmail).toHaveBeenCalledWith(email);
+    const result = await FeedbackService.getFeedbackByEmail('test@example.com');
+    expect(result).toEqual([mockFeedbackData]);
+    expect(FeedbackRepository.getFeedbackByEmail).toHaveBeenCalledWith('test@example.com');
   });
 
-  test('deleteFeedback should delete feedback by ID', async () => {
-    const feedbackId = '12345';
-    FeedbackRepository.deleteFeedback.mockResolvedValue(true); // Mock successful deletion
+  it('should delete feedback successfully', async () => {
+    FeedbackRepository.deleteFeedback.mockResolvedValue(mockFeedbackData);
 
     const result = await FeedbackService.deleteFeedback(feedbackId);
-    expect(result).toBe(true);
+    expect(result).toEqual(mockFeedbackData);
     expect(FeedbackRepository.deleteFeedback).toHaveBeenCalledWith(feedbackId);
   });
 
-  test('getFeedbackById should return feedback by ID', async () => {
-    const feedbackId = '12345';
-    const mockFeedback = { _id: feedbackId, emailAddress: 'test@example.com', message: 'Great service!' };
-    FeedbackRepository.getFeedbackById.mockResolvedValue(mockFeedback); // Mock return value
+  it('should get feedback by ID successfully', async () => {
+    FeedbackRepository.getFeedbackById.mockResolvedValue(mockFeedbackData);
 
-    const feedback = await FeedbackService.getFeedbackById(feedbackId);
-    expect(feedback).toEqual(mockFeedback);
+    const result = await FeedbackService.getFeedbackById(feedbackId);
+    expect(result).toEqual(mockFeedbackData);
     expect(FeedbackRepository.getFeedbackById).toHaveBeenCalledWith(feedbackId);
   });
 
-  test('updateFeedback should update feedback and return it', async () => {
-    const feedbackId = '12345';
-    const updatedData = { message: 'Updated feedback' };
-    const mockFeedback = { _id: feedbackId, emailAddress: 'test@example.com', ...updatedData };
-    FeedbackRepository.updateFeedback.mockResolvedValue(mockFeedback); // Mock return value
+  it('should update feedback successfully', async () => {
+    const updatedData = { message: 'Updated feedback message.' };
+    FeedbackRepository.updateFeedback.mockResolvedValue({ ...mockFeedbackData, ...updatedData });
 
-    const feedback = await FeedbackService.updateFeedback(feedbackId, updatedData);
-    expect(feedback).toEqual(mockFeedback);
+    const result = await FeedbackService.updateFeedback(feedbackId, updatedData);
+    expect(result).toEqual({ ...mockFeedbackData, ...updatedData });
     expect(FeedbackRepository.updateFeedback).toHaveBeenCalledWith(feedbackId, updatedData);
   });
 
-  test('addResponse should add a response to feedback', async () => {
-    const feedbackId = '12345';
-    const response = 'Thank you for your feedback!';
-    const mockFeedback = { _id: feedbackId, response };
-    FeedbackRepository.addResponse.mockResolvedValue(mockFeedback); // Mock return value
+  it('should add a response successfully', async () => {
+    const response = 'This is a response.';
+    FeedbackRepository.addResponse.mockResolvedValue({ ...mockFeedbackData, response });
 
-    const feedback = await FeedbackService.addResponse(feedbackId, response);
-    expect(feedback).toEqual(mockFeedback);
+    const result = await FeedbackService.addResponse(feedbackId, response);
+    expect(result).toEqual({ ...mockFeedbackData, response });
     expect(FeedbackRepository.addResponse).toHaveBeenCalledWith(feedbackId, response);
   });
 
-  test('deleteResponse should delete response from feedback', async () => {
-    const feedbackId = '12345';
-    FeedbackRepository.deleteResponse.mockResolvedValue(true); // Mock successful deletion
+  
 
-    const result = await FeedbackService.deleteResponse(feedbackId);
-    expect(result).toBe(true);
-    expect(FeedbackRepository.deleteResponse).toHaveBeenCalledWith(feedbackId);
-  });
+  it('should get feedbacks by user ID successfully', async () => {
+    const userId = 'user123';
+    FeedbackRepository.getFeedbacksByUserId.mockResolvedValue([mockFeedbackData]);
 
-  test('getFeedbacksByUserId should return feedbacks for a specific user', async () => {
-    const userId = '67890';
-    const mockFeedbacks = [{ userId, emailAddress: 'user@example.com', message: 'Feedback' }];
-    FeedbackRepository.getFeedbacksByUserId.mockResolvedValue(mockFeedbacks); // Mock return value
-
-    const feedbacks = await FeedbackService.getFeedbacksByUserId(userId);
-    expect(feedbacks).toEqual(mockFeedbacks);
+    const result = await FeedbackService.getFeedbacksByUserId(userId);
+    expect(result).toEqual([mockFeedbackData]);
     expect(FeedbackRepository.getFeedbacksByUserId).toHaveBeenCalledWith(userId);
   });
+
+  // Negative test cases
+  it('should throw an error when creating feedback fails', async () => {
+    FeedbackRepository.createFeedback.mockRejectedValue(new Error('Database error'));
+
+    await expect(FeedbackService.createFeedback(mockFeedbackData)).rejects.toThrow('Database error');
+  });
+
+  it('should throw an error when getting all feedbacks fails', async () => {
+    FeedbackRepository.getAllFeedbacks.mockRejectedValue(new Error('Database error'));
+
+    await expect(FeedbackService.getAllFeedbacks()).rejects.toThrow('Database error');
+  });
+
+  it('should throw an error when getting feedback by email fails', async () => {
+    FeedbackRepository.getFeedbackByEmail.mockRejectedValue(new Error('Database error'));
+
+    await expect(FeedbackService.getFeedbackByEmail('test@example.com')).rejects.toThrow('Database error');
+  });
+
+  it('should throw an error when deleting feedback fails', async () => {
+    FeedbackRepository.deleteFeedback.mockRejectedValue(new Error('Database error'));
+
+    await expect(FeedbackService.deleteFeedback(feedbackId)).rejects.toThrow('Database error');
+  });
+
+  it('should throw an error when getting feedback by ID fails', async () => {
+    FeedbackRepository.getFeedbackById.mockRejectedValue(new Error('Database error'));
+
+    await expect(FeedbackService.getFeedbackById(feedbackId)).rejects.toThrow('Database error');
+  });
+
+  it('should throw an error when updating feedback fails', async () => {
+    const updatedData = { message: 'Updated feedback message.' };
+    FeedbackRepository.updateFeedback.mockRejectedValue(new Error('Database error'));
+
+    await expect(FeedbackService.updateFeedback(feedbackId, updatedData)).rejects.toThrow('Database error');
+  });
+
+  it('should throw an error when adding a response fails', async () => {
+    const response = 'This is a response.';
+    FeedbackRepository.addResponse.mockRejectedValue(new Error('Database error'));
+
+    await expect(FeedbackService.addResponse(feedbackId, response)).rejects.toThrow('Database error');
+  });
+
+  it('should throw an error when getting feedbacks by user ID fails', async () => {
+    const userId = 'user123';
+    FeedbackRepository.getFeedbacksByUserId.mockRejectedValue(new Error('Database error'));
+
+    await expect(FeedbackService.getFeedbacksByUserId(userId)).rejects.toThrow('Database error');
+  });
+
 });
