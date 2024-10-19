@@ -2,29 +2,26 @@ import cors from "cors"
 
 import "dotenv/config"
 
-import UserRoute from './src/Routes/UserRoute.js'
-import ScheduleRouter from "./src/Routes/ScheduleRoute.js"
+
+
+
 import PamentRoute from './src/Routes/PaymentRoute.js'
-import userpay from './src/Routes/UserPayRoute.js'
+
 import FeedbackRouter from "./src/Routes/FeedbackRouter.js"
 import ReportRouter from "./src/Routes/ReportRoute.js"; 
 import WasteCollect_Router from "./src/Routes/WasteCollectRoute.js"
-import Type_Router from "./src/Routes/TypeRoute.js"
+
 
 import express, { response } from "express"
 
 
-import FeedbackRouter from "./src/Routes/FeedbackRouter.js"
+
 
 import { Logger }  from "./src/Utilities/Logger.js"
 
 import MongoConnect from "./src/Configurations/DB_Connection.js"
 
 
-import PamentRoute from './src/Routes/PaymentRoute.js'
-
-import ReportRouter from "./src/Routes/ReportRoute.js"; 
-
 import ScheduleRouter from "./src/Routes/ScheduleRoute.js"
 
 
@@ -34,7 +31,7 @@ import userpay from './src/Routes/UserPayRoute.js'
 
 import UserRoute from './src/Routes/UserRoute.js'
 
-import WasteCollect_Router from "./src/Routes/WasteCollectRoute.js"
+
 
 
 
