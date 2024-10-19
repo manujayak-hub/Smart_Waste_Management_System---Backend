@@ -1,12 +1,12 @@
 // src/routes/ReportRoutes.js
 
 import express from 'express';
-import { getPaymentsReport ,getSchedulesReport,getWasteCollectionReport} from '../Controllers/ReportController.js';
+import { getUserPaymentReport ,getSchedulesReport,getWasteCollectionReport} from '../Controllers/ReportController.js';
 
 
 const router = express.Router();
 
-router.get('/payments', getPaymentsReport);
+router.get('/payments', getUserPaymentReport);
 
 router.get('/schedules', getSchedulesReport);
 
