@@ -8,11 +8,6 @@ import UserRoute from './src/Routes/UserRoute.js'
 
 import ScheduleRouter from "./src/Routes/ScheduleRoute.js"
 
-import PamentRoute from './src/Routes/PaymentRoute.js'
-import userpay from './src/Routes/UserPayRoute.js'
-
-
-import ScheduleRouter from "./src/Routes/ScheduleRoute.js"
 
 import PamentRoute from './src/Routes/PaymentRoute.js'
 import userpay from './src/Routes/UserPayRoute.js'
