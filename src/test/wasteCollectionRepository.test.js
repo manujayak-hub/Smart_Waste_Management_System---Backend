@@ -1,6 +1,5 @@
 import WasteCollectionRepository from '../Repositories/WasteCollectionRepository.js';
 import WasteCollection from '../Models/WasteCollectModel.js'; // Import the model to mock it
-import mongoose from 'mongoose';
 
 jest.mock('../Models/WasteCollectModel.js'); // Mock the model
 
