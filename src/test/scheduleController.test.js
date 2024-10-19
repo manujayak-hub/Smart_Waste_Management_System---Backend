@@ -67,6 +67,7 @@ describe('Schedule Controller', () => {
     });
   });
 
+  //get schedule by its id
   describe('GET /doc/:id', () => {
     it('should return a schedule by ID and return 200 status', async () => {
       const schedule = await Schedule.create(sampleSchedule); 

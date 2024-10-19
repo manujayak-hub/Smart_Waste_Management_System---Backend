@@ -1,4 +1,4 @@
-// Services/ScheduleService.js
+
 import ScheduleRepository from '../Repositories/ScheduleRepository.js';
 
 class ScheduleService {
