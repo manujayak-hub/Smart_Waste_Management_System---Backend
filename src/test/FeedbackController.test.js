@@ -165,7 +165,7 @@ describe('Feedback Controller', () => {
     FeedbackService.deleteResponse.mockResolvedValue(null); // Simulate feedback not found
     await feedbackController.deleteResponse(req, res);
     expect(FeedbackService.deleteResponse).toHaveBeenCalledWith('12345');
-    expect(res.status).toHaveBeenCalledWith(404); // Expecting 404 since feedback was not found
+    expect(res.status).toHaveBeenCalledWith(404); 
     expect(res.json).toHaveBeenCalledWith({ message: 'Feedback not found' });
   
     // Negative case
