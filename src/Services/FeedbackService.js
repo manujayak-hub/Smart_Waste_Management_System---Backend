@@ -29,7 +29,8 @@ const addResponse = async (feedbackId, response) => {
 };
 
 const deleteResponse = async (feedbackId) => {
-  return await FeedbackRepository.deleteResponse(feedbackId);
+    const result = await FeedbackRepository.findByIdAndUpdate(feedbackId, { $unset: { response: '' } }, { new: true });
+    return result; // This will be null if the feedback was not found
 };
 
 const getFeedbacksByUserId = async (userId) => {
