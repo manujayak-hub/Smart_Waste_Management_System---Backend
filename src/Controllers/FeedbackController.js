@@ -86,7 +86,6 @@ export const addResponse = async (req, res) => {
 export const deleteResponse = async (req, res) => {
   try {
     const updatedFeedback = await FeedbackService.deleteResponse(req.params.id);
-    // Check if the feedback was found and deleted
     if (!updatedFeedback) {
       return res.status(404).json({ message: 'Feedback not found' });
     }
