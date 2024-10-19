@@ -19,6 +19,9 @@ const scheduleSchema = new Schema({
     type: String,
     required: true
   },
+  residenceID:{
+    type:String
+  },
   cdate:{
     type: String,
     required: true,

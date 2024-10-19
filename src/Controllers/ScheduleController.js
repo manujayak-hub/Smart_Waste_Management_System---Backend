@@ -1,4 +1,4 @@
-// Controllers/ScheduleController.js
+
 import ScheduleService from '../Services/ScheduleService.js';
 
 class ScheduleController {
