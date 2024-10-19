@@ -86,11 +86,15 @@ export const addResponse = async (req, res) => {
 export const deleteResponse = async (req, res) => {
   try {
     const updatedFeedback = await FeedbackService.deleteResponse(req.params.id);
+    if (!updatedFeedback) {
+      return res.status(404).json({ message: 'Feedback not found' });
+    }
     res.status(200).json({ message: 'Response deleted successfully', feedback: updatedFeedback });
   } catch (error) {
     res.status(500).json({ message: 'Error deleting response' });
   }
 };
+
 
 // Get feedbacks by userId
 export const getFeedbacksByUserId = async (req, res) => {
