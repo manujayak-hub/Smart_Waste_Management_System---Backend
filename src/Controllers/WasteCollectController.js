@@ -1,3 +1,4 @@
+// src/Controllers/WasteCollectController.js
 import WasteCollectionService from '../Services/WasteCollectionService.js';
 
 const getAllWasteRecords = async (req, res) => {
