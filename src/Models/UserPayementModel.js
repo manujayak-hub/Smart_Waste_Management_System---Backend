@@ -1,11 +1,10 @@
-// src/Models/UserPaymentModel.js
 import mongoose from 'mongoose';
 
 const UserPaymentSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
-    ref: 'User' // Assuming there's a User model
+    ref: 'User'
   },
   items: [
     {
@@ -20,7 +19,7 @@ const UserPaymentSchema = new mongoose.Schema({
   paymentStatus: {
     type: String,
     enum: ['pending', 'Completed', 'failed'],
-    default: 'completed'
+    default: 'Completed'
   },
   sessionId: {
     type: String,
@@ -33,5 +32,4 @@ const UserPaymentSchema = new mongoose.Schema({
 });
 
 const UserPayment = mongoose.model('UserPayment', UserPaymentSchema);
-
 export default UserPayment;
