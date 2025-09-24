@@ -1,7 +1,5 @@
 import express from 'express';
 import { getAllFeedbacks, createFeedback,getFeedbackByEmail,deleteFeedback,updateFeedback,getFeedbackById,addResponse,deleteResponse, getFeedbacksByUserId} from '../Controllers/FeedbackController.js';
-import { celebrate, Segments } from 'celebrate';
-import { createFeedbackSchema } from '../Validators/feedback.js';
 
 const router = express.Router();
 
@@ -9,12 +7,7 @@ const router = express.Router();
 router.get('/all', getAllFeedbacks);
 
 // Route to create new feedback
-// router.post('/', createFeedback);
-router.post(
-  '/',
-  celebrate({ [Segments.BODY]: createFeedbackSchema }),
-  createFeedback // ✅ this is the actual controller function
-);
+router.post('/', createFeedback);
 
 // Route for fetching feedback by email
 router.get("/:email", getFeedbackByEmail);
