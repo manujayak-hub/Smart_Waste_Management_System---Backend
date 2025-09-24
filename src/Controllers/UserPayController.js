@@ -1,13 +1,22 @@
-// src/Controllers/UserPayController.js
 import Stripe from 'stripe';
 import UserPayment from '../Models/UserPayementModel.js';
+import xss from 'xss';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-export const createCheckoutSession = async (req, res) => {
-  const { items, userId } = req.body; // Receive userId and items from the request
+export const createCheckoutSession = async (req, res) =>
+{
+  let { items, userId } = req.body;
 
-  try {
+  try
+  {
+    // sanitize inputs
+    userId = xss(userId);
+    items = items.map(item => ({
+      name: xss(item.name),
+      price: Number(item.price)
+    }));
+
     // Create a Stripe session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -16,7 +25,7 @@ export const createCheckoutSession = async (req, res) => {
         price_data: {
           currency: 'usd',
           product_data: { name: item.name },
-          unit_amount: item.price * 100, // Convert to cents
+          unit_amount: item.price * 100,
         },
         quantity: 1,
       })),
@@ -28,28 +37,46 @@ export const createCheckoutSession = async (req, res) => {
 
     // Save the session details in MongoDB
     const paymentData = new UserPayment({
-      userId, // Set userId from the request
+      userId,
       items,
       totalAmount: items.reduce((total, item) => total + item.price, 0),
       sessionId: session.id,
-      paymentStatus: 'Completed', 
+      paymentStatus: 'Completed',
       createdAt: formattedDate
     });
 
-    await paymentData.save(); // Save payment details to the database
+    await paymentData.save();
 
-    // Respond with the session URL for checkout
-    res.json({ url: session.url });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    // Respond with sanitized session URL
+    res.json({ url: xss(session.url) });
+  } catch (error)
+  {
+    res.status(500).json({ error: xss(error.message) });
   }
 };
 
-export const getPayments = async (req, res) => {
-  try {
+export const getPayments = async (req, res) =>
+{
+  try
+  {
     const payments = await UserPayment.find();
-    res.status(200).json(payments);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
+
+    // sanitize output
+    const sanitizedPayments = payments.map(p => ({
+      ...p._doc,
+      userId: xss(p.userId.toString()),
+      items: p.items.map(i => ({
+        name: xss(i.name),
+        price: i.price
+      })),
+      paymentStatus: xss(p.paymentStatus),
+      sessionId: xss(p.sessionId),
+      createdAt: xss(p.createdAt)
+    }));
+
+    res.status(200).json(sanitizedPayments);
+  } catch (error)
+  {
+    res.status(400).json({ error: xss(error.message) });
   }
 };

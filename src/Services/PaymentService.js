@@ -1,22 +1,26 @@
-// Services/PaymentService.js
 import * as PaymentRepository from '../Repositories/PaymentRepository.js';
 
-export const addPayment = async (paymentData) => {
+export const addPayment = async (paymentData) =>
+{
   return await PaymentRepository.createPayment(paymentData);
 };
 
-export const updatePayment = async (paymentId, updates) => {
+export const updatePayment = async (paymentId, updates) =>
+{
   return await PaymentRepository.findPaymentByIdAndUpdate(paymentId, updates);
 };
 
-export const deletePayment = async (paymentId) => {
+export const deletePayment = async (paymentId) =>
+{
   return await PaymentRepository.findPaymentByIdAndDelete(paymentId);
 };
 
-export const getPayments = async () => {
+export const getPayments = async () =>
+{
   return await PaymentRepository.findAllPayments();
 };
 
-export const getPaymentsByUser = async (userId) => {
+export const getPaymentsByUser = async (userId) =>
+{
   return await PaymentRepository.findPaymentsByUserId(userId);
 };

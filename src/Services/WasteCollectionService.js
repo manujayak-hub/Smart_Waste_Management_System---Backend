@@ -1,20 +1,21 @@
+// src/Services/WasteCollectionService.js
 import WasteCollectionRepository from '../Repositories/WasteCollectionRepository.js';
 
 class WasteCollectionService {
-  async getAllWasteRecords() {
-    return await WasteCollectionRepository.getAllWasteRecords();
+  async getAllWasteRecords(skip = 0, limit = 10, fields = "") {
+    return await WasteCollectionRepository.getAllWasteRecords(skip, limit, fields);
   }
 
-  async getWasteRecordsByResidenceId(residenceId) {
-    const records = await WasteCollectionRepository.getWasteRecordsByResidenceId(residenceId);
+  async getWasteRecordsByResidenceId(residenceId, fields = "") {
+    const records = await WasteCollectionRepository.getWasteRecordsByResidenceId(residenceId, fields);
     if (records.length === 0) {
       throw new Error('No waste collection records found for this residence.');
     }
     return records;
   }
 
-  async getWasteRecordById(id) {
-    const record = await WasteCollectionRepository.getWasteRecordById(id);
+  async getWasteRecordById(id, fields = "") {
+    const record = await WasteCollectionRepository.getWasteRecordById(id, fields);
     if (!record) {
       throw new Error('Waste collection record not found.');
     }

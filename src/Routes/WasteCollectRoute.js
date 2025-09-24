@@ -1,7 +1,12 @@
+// src/Routes/WasteCollectRoute.js
 import express from 'express';
-import WasteCollectController from '../Controllers/WasteCollectController.js'; // Adjust the import path accordingly
+import WasteCollectController from '../Controllers/WasteCollectController.js'; 
+import { wasteLimiter } from '../Middleware/rateLimiter.js';
 
 const WasteCollect_Router = express.Router();
+
+// Apply limiter only for this router
+WasteCollect_Router.use(wasteLimiter);
 
 // Get all waste collection records
 WasteCollect_Router.get('/', WasteCollectController.getAllWasteRecords);
