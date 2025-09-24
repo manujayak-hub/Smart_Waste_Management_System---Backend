@@ -11,7 +11,11 @@ import Type_Router from "./src/Routes/TypeRoute.js"
 import userpay from './src/Routes/UserPayRoute.js'
 import UserRoute from './src/Routes/UserRoute.js'
 import WasteCollect_Router from "./src/Routes/WasteCollectRoute.js"
+
+import { wasteLimiter } from "./src/Middleware/rateLimiter.js";
+
 import { errors } from 'celebrate';
+
 
 const app = express()
 const PORT = process.env.PORT
@@ -42,7 +46,8 @@ app.use('/api/userpay', userpay);
 app.use('/feedback', FeedbackRouter);
 app.use('/reports', ReportRouter);
 
-app.use('/WasteCollection',WasteCollect_Router)
+// Waste Collection route with rate limiter
+app.use('/WasteCollection', wasteLimiter, WasteCollect_Router);
 app.use('/type',Type_Router)
 app.use(errors());
 
