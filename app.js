@@ -11,7 +11,7 @@ import Type_Router from "./src/Routes/TypeRoute.js"
 import userpay from './src/Routes/UserPayRoute.js'
 import UserRoute from './src/Routes/UserRoute.js'
 import WasteCollect_Router from "./src/Routes/WasteCollectRoute.js"
-
+import { errors } from 'celebrate';
 
 const app = express()
 const PORT = process.env.PORT
@@ -44,7 +44,7 @@ app.use('/reports', ReportRouter);
 
 app.use('/WasteCollection',WasteCollect_Router)
 app.use('/type',Type_Router)
-
+app.use(errors());
 
 app.listen(PORT , ()=>{
     Logger.info("Connected via Port " + PORT)
